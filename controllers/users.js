@@ -9,7 +9,7 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      res.status(404).send({ message: 'Пользователь не найден' });
+      res.status(400).send({ message: 'Некорректный id' });
       return;
     })
     .then(user => res.send(user))
@@ -51,7 +51,7 @@ const updateUserProfile = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      res.status(404).send({ message: 'Пользователь не найден' });
+      res.status(400).send({ message: 'Некорректный id' });
       return;
     })
     .then(user => res.send(user))
@@ -82,7 +82,7 @@ const updateUserAvatar = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      res.status(404).send({ message: 'Пользователь не найден' });
+      res.status(400).send({ message: 'Некорректный id' });
       return;
     })
     .then(user => res.send(user))
