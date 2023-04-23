@@ -1,10 +1,11 @@
 const Card = require('../models/card');
+const { errCodes } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
     .populate('owner')
-    .then(cards => res.send(cards))
-    .catch(err => res.status(500).send({ message: err.message }));
+    .then((cards) => res.send(cards))
+    .catch(() => res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' }));
 };
 
 const createCard = (req, res) => {
@@ -12,15 +13,12 @@ const createCard = (req, res) => {
   const ownerId = req.user._id;
 
   Card.create({ name, link, owner: ownerId })
-    .then(card => res.status(201).send(card))
-    .catch(err => {
+    .then((card) => res.status(201).send(card))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map(error => error.message)
-          .join(', ');
-        res.status(400).send({ message: message });
+        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
       } else {
-        res.status(500).send({ message: err.message });
+        res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
       }
     });
 };
@@ -28,56 +26,65 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.id)
     .orFail(() => {
-      res.status(404).send({ message: 'Карточка не найдена' });
-      return;
+      throw new Error('NotFound');
     })
     .then(() => res.status(200).send({ message: 'Пост удалён' }))
-    .catch(err => {
-      if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(400).send({ message: 'Некорректный id' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(errCodes.BadRequestError).send({ message: 'Invalid id' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.message === 'NotFound') {
+        res.status(errCodes.NotFoundError).send({ message: 'Card not found' });
+        return;
+      }
+      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
 const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.id,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
-      res.status(404).send({ message: 'Карточка не найдена' });
-      return;
+      throw new Error('NotFound');
     })
-    .then(card => res.send(card))
-    .catch(err => {
-      if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(400).send({ message: 'Некорректный id' });
+    .then((card) => res.send(card))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(errCodes.BadRequestError).send({ message: 'Invalid id' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.message === 'NotFound') {
+        res.status(errCodes.NotFoundError).send({ message: 'Card not found' });
+        return;
+      }
+      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.id,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
-      res.status(404).send({ message: 'Карточка не найдена' });
-      return;
+      throw new Error('NotFound');
     })
-    .then(card => res.send(card))
-    .catch(err => {
-      if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(400).send({ message: 'Некорректный id' });
+    .then((card) => res.send(card))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(errCodes.BadRequestError).send({ message: 'Invalid id' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.message === 'NotFound') {
+        res.status(errCodes.NotFoundError).send({ message: 'Card not found' });
+        return;
+      }
+      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
@@ -86,5 +93,5 @@ module.exports = {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard
+  dislikeCard,
 };

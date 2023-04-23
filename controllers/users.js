@@ -1,24 +1,28 @@
 const User = require('../models/user');
+const { errCodes } = require('../utils/constants');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then(users => res.send(users))
-    .catch(err => res.status(500).send({ message: err.message }));
+    .then((users) => res.send(users))
+    .catch(() => res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' }));
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.id)
     .orFail(() => {
-      res.status(404).send({ message: 'Пользователь не найден' });
-      return;
+      throw new Error('NotFound');
     })
-    .then(user => res.send(user))
-    .catch(err => {
-      if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(400).send({ message: 'Некорректный id' });
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(errCodes.BadRequestError).send({ message: 'Invalid id' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.message === 'NotFound') {
+        res.status(errCodes.NotFoundError).send({ message: 'User not found' });
+        return;
+      }
+      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
@@ -26,44 +30,37 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then(user => res.status(201).send(user))
-    .catch(err => {
+    .then((user) => res.status(201).send(user))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map(error => error.message)
-          .join(', ');
-        res.status(400).send({ message: message });
+        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
       } else {
-        res.status(500).send({ message: err.message });
+        res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
       }
     });
 };
 
 const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
-  console.log(name, about);
 
   User.findByIdAndUpdate(
     req.user._id,
     {
       name,
-      about
+      about,
     },
     {
       new: true,
-      runValidators: true
-    }
+      runValidators: true,
+    },
   )
-    .then(user => res.send(user))
-    .catch(err => {
+    .then((user) => res.send(user))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map(error => error.message)
-          .join(', ');
-        res.status(400).send({ message: message });
+        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
@@ -73,23 +70,20 @@ const updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
-      avatar
+      avatar,
     },
     {
       new: true,
-      runValidators: true
-    }
+      runValidators: true,
+    },
   )
-    .then(user => res.send(user))
-    .catch(err => {
+    .then((user) => res.send(user))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map(error => error.message)
-          .join(', ');
-        res.status(400).send({ message: message });
+        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
@@ -98,5 +92,5 @@ module.exports = {
   getUserById,
   createUser,
   updateUserProfile,
-  updateUserAvatar
+  updateUserAvatar,
 };
