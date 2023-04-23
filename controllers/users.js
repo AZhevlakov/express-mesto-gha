@@ -41,14 +41,18 @@ const createUser = (req, res) => {
 
 const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
+  console.log(name, about);
 
   User.findByIdAndUpdate(
     req.user._id,
     {
-      name: name,
-      about: about
+      name,
+      about
     },
-    { new: true }
+    {
+      new: true,
+      runValidators: true
+    }
   )
     .orFail(() => {
       res.status(400).send({ message: 'Некорректный id' });
@@ -77,9 +81,12 @@ const updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
-      avatar: avatar
+      avatar
     },
-    { new: true }
+    {
+      new: true,
+      runValidators: true
+    }
   )
     .orFail(() => {
       res.status(400).send({ message: 'Некорректный id' });

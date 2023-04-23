@@ -2,6 +2,7 @@ const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find({})
+    .populate('owner')
     .then(cards => res.send(cards))
     .catch(err => res.status(500).send({ message: err.message }));
 };
@@ -30,7 +31,7 @@ const deleteCard = (req, res) => {
       res.status(400).send({ message: 'Некорректный id' });
       return;
     })
-    .then(card => res.send(card))
+    .then(() => res.status(200).send({ message: 'Пост удалён' }))
     .catch(err => {
       if (err.message.includes('Cast to ObjectId failed')) {
         res.status(404).send({ message: 'Карточка не найдена' });
