@@ -7,15 +7,15 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  User.findById(req.params.userId)
+  User.findById(req.params.id)
     .orFail(() => {
-      res.status(400).send({ message: 'Некорректный id' });
+      res.status(404).send({ message: 'Пользователь не найден' });
       return;
     })
     .then(user => res.send(user))
     .catch(err => {
       if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(400).send({ message: 'Некорректный id' });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -54,10 +54,6 @@ const updateUserProfile = (req, res) => {
       runValidators: true
     }
   )
-    .orFail(() => {
-      res.status(400).send({ message: 'Некорректный id' });
-      return;
-    })
     .then(user => res.send(user))
     .catch(err => {
       if (err.name === 'ValidationError') {
@@ -65,10 +61,6 @@ const updateUserProfile = (req, res) => {
           .map(error => error.message)
           .join(', ');
         res.status(400).send({ message: message });
-        return;
-      }
-      if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -88,10 +80,6 @@ const updateUserAvatar = (req, res) => {
       runValidators: true
     }
   )
-    .orFail(() => {
-      res.status(400).send({ message: 'Некорректный id' });
-      return;
-    })
     .then(user => res.send(user))
     .catch(err => {
       if (err.name === 'ValidationError') {
@@ -99,10 +87,6 @@ const updateUserAvatar = (req, res) => {
           .map(error => error.message)
           .join(', ');
         res.status(400).send({ message: message });
-        return;
-      }
-      if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
       res.status(500).send({ message: err.message });

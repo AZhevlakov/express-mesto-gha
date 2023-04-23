@@ -26,15 +26,15 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.cardId)
+  Card.findByIdAndDelete(req.params.id)
     .orFail(() => {
-      res.status(400).send({ message: 'Некорректный id' });
+      res.status(404).send({ message: 'Карточка не найдена' });
       return;
     })
     .then(() => res.status(200).send({ message: 'Пост удалён' }))
     .catch(err => {
       if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(400).send({ message: 'Некорректный id' });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -43,18 +43,18 @@ const deleteCard = (req, res) => {
 
 const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
     .orFail(() => {
-      res.status(400).send({ message: 'Некорректный id' });
+      res.status(404).send({ message: 'Карточка не найдена' });
       return;
     })
     .then(card => res.send(card))
     .catch(err => {
       if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(400).send({ message: 'Некорректный id' });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -63,18 +63,18 @@ const likeCard = (req, res) => {
 
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
     .orFail(() => {
-      res.status(400).send({ message: 'Некорректный id' });
+      res.status(404).send({ message: 'Карточка не найдена' });
       return;
     })
     .then(card => res.send(card))
     .catch(err => {
       if (err.message.includes('Cast to ObjectId failed')) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(400).send({ message: 'Некорректный id' });
         return;
       }
       res.status(500).send({ message: err.message });
