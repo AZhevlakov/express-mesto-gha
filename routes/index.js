@@ -8,11 +8,10 @@ const { registerValidate, loginValidate, authValidate } = require('../middleware
 router.post('/signin', loginValidate, login);
 router.post('/signup', registerValidate, register);
 
-router.use(authValidate);
 router.use(auth);
 
-router.use('/users', userRouter);
-router.use('/cards', cardRouter);
+router.use('/users', authValidate, userRouter);
+router.use('/cards', authValidate, cardRouter);
 router.use('/', (req, res) => {
   res.status(404).send({ message: 'Page not found' });
 });

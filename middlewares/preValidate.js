@@ -19,7 +19,7 @@ const registerValidate = celebrate({
     about: Joi.string().min(2).max(30).default('Исследователь'),
     avatar: Joi.string().regex(/^https?:\/\/(www\.)?[-a-zA-Z0-9.]{2,255}\.[a-z]{2,11}([-a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]+)#?$/).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     email: Joi.string().email().required(),
-    password: Joi.string().regex(/^.*(?=.{8,})(?=.+[a-z])(?=.+[A-Z])(?=.+\d)(?=.+[!#$%&?"]).*$/).required(),
+    password: Joi.string().regex(/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!#$%&?"])$/).required(),
   }),
 });
 
