@@ -7,7 +7,7 @@ const { errors } = require('celebrate');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
-const { PORT = 3002 } = process.env;
+const { PORT = 3000 } = process.env;
 const router = require('./routes');
 
 const limiter = rateLimit(
