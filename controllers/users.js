@@ -13,12 +13,13 @@ const login = (req, res, next) => {
         'secret-dev-key',
         { expiresIn: '7d' },
       );
-      res.cookie('token', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-        sameSite: true,
-      })
-        .end();
+      res.send({ token });
+      // res.cookie('token', { token }, {
+      //   maxAge: 3600000 * 24 * 7,
+      //   httpOnly: true,
+      //   sameSite: true,
+      // })
+      //   .end();
     })
     .catch(next);
 };
