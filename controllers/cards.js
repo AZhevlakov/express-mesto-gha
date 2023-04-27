@@ -24,21 +24,23 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  if (req.params.id.owner === req.user._id) {
-    Card.findByIdAndDelete(req.params.id)
-      .orFail(() => {
-        throw new NotFoundError('Card not found');
-      })
-      .then(() => res.status(200).send({ message: 'Post deleted' }))
-      .catch((err) => {
-        if (err.name === 'CastError') {
-          next(new BadRequestError('Invalid id'));
-        }
-        next(err);
-      });
-  } else {
-    next(new ForbiddenError('Not have access rights'));
-  }
+  Card.findById(req.params.id)
+    .orFail(() => {
+      throw new NotFoundError('Card not found');
+    })
+    .then((card) => {
+      if (card.owner._id !== req.user._id) {
+        next(new ForbiddenError('Not have access rights'));
+      }
+      return Card.findByIdAndRemove(req.params.id);
+    })
+    .then(() => res.status(200).send({ message: 'Post deleted' }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Invalid id'));
+      }
+      next(err);
+    });
 };
 
 const likeCard = (req, res, next) => {
