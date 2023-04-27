@@ -42,7 +42,13 @@ const register = (req, res, next) => {
         password: hash,
       },
     ))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      _id: user.id,
+    }))
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Email already exists'));
