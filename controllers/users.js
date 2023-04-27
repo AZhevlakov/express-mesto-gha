@@ -1,46 +1,94 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { errCodes } = require('../utils/constants');
+const { BadRequestError, NotFoundError, ConflictError } = require('../errors');
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch(() => res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' }));
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        'secret-dev-key',
+        { expiresIn: '7d' },
+      );
+      res.cookie('token', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      })
+        .end();
+    })
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const register = (req, res, next) => {
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create(
+      {
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      },
+    ))
+    .then((user) => res.status(201).send(user))
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Email already exists'));
+      }
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Incorrect data was transmitted'));
+      }
+      next(err);
+    });
+};
+
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send(users))
+    .catch(next);
+};
+
+const getUserById = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(() => {
-      throw new Error('NotFound');
+      throw new NotFoundError('User not found');
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(errCodes.BadRequestError).send({ message: 'Invalid id' });
-        return;
+        next(new BadRequestError('Invalid id'));
       }
-      if (err.message === 'NotFound') {
-        res.status(errCodes.NotFoundError).send({ message: 'User not found' });
-        return;
-      }
-      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
+      next(err);
     });
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
+const getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      throw new NotFoundError('User not found');
+    })
+    .then((user) => res.send({ _id: user._id, email: user.email }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
-      } else {
-        res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Invalid id'));
       }
+      next(err);
     });
 };
 
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -57,14 +105,14 @@ const updateUserProfile = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
-        return;
+        next(new BadRequestError('Incorrect data was transmitted'));
+      } else {
+        next(err);
       }
-      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -80,17 +128,19 @@ const updateUserAvatar = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(errCodes.BadRequestError).send({ message: 'Incorrect data was transmitted' });
-        return;
+        next(new BadRequestError('Incorrect data was transmitted'));
+      } else {
+        next(err);
       }
-      res.status(errCodes.InternalServerError).send({ message: 'Internal Server Error' });
     });
 };
 
 module.exports = {
+  login,
+  register,
   getUsers,
   getUserById,
-  createUser,
+  getUserInfo,
   updateUserProfile,
   updateUserAvatar,
 };
