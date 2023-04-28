@@ -29,7 +29,7 @@ const deleteCard = (req, res, next) => {
       throw new NotFoundError('Card not found');
     })
     .then((card) => {
-      if (card.owner._id !== req.user._id) {
+      if (card.owner.toString() !== req.user._id) {
         next(new ForbiddenError('Not have access rights'));
       }
       return Card.findByIdAndRemove(req.params.id);
