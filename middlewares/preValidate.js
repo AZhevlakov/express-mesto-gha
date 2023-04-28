@@ -2,7 +2,7 @@ const { celebrate, Joi } = require('celebrate');
 
 const authValidate = celebrate({
   headers: Joi.object().keys({
-    authorization: Joi.string().regex(/^[-$/.a-zA-Z0-9]+$/).required(),
+    authorization: Joi.string().regex(/^[-_$\\/.a-zA-Z0-9]+$/).required(),
   }).unknown(true),
 });
 
