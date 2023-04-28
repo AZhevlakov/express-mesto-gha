@@ -88,6 +88,9 @@ const getUserInfo = (req, res, next) => {
     })
     .then((user) => res.status(200).send({ _id: user._id, email: user.email }))
     .catch((err) => {
+      if (err.name === 'NotFound') {
+        return next(err);
+      }
       if (err.name === 'CastError') {
         return next(new BadRequestError('Invalid id'));
       }
