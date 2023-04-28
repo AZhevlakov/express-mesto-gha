@@ -16,10 +16,9 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Incorrect data was transmitted'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Incorrect data was transmitted'));
       }
+      return next(err);
     });
 };
 
@@ -30,16 +29,16 @@ const deleteCard = (req, res, next) => {
     })
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
-        next(new ForbiddenError('Not have access rights'));
+        return next(new ForbiddenError('Not have access rights'));
       }
       return Card.findByIdAndRemove(req.params.id);
     })
     .then(() => res.status(200).send({ message: 'Post deleted' }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Invalid id'));
+        return next(new BadRequestError('Invalid id'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -55,9 +54,9 @@ const likeCard = (req, res, next) => {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Invalid id'));
+        return next(new BadRequestError('Invalid id'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -73,9 +72,9 @@ const dislikeCard = (req, res, next) => {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Invalid id'));
+        return next(new BadRequestError('Invalid id'));
       }
-      next(err);
+      return next(err);
     });
 };
 

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const { UnauthorizedError } = require('../errors');
+const { urlRegExp } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,7 +22,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       validate: {
         validator(url) {
-          return /^https?:\/\/(www\.)?[-a-zA-Z0-9.]{2,255}\.[a-z]{2,11}([-a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]+)#?$/.test(url);
+          return urlRegExp.test(url);
         },
         message: 'Is not a valid url',
       },

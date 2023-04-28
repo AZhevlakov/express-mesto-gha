@@ -14,6 +14,12 @@ const login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res.send({ token });
+      // res.cookie('token', { token }, {
+      //   maxAge: 3600000 * 24 * 7,
+      //   httpOnly: true,
+      //   sameSite: true,
+      // })
+      //   .end();
     })
     .catch(next);
 };
@@ -46,12 +52,12 @@ const register = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('Email already exists'));
+        return next(new ConflictError('Email already exists'));
       }
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Incorrect data was transmitted'));
+        return next(new BadRequestError('Incorrect data was transmitted'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -69,9 +75,9 @@ const getUserById = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Invalid id'));
+        return next(new BadRequestError('Invalid id'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -83,9 +89,9 @@ const getUserInfo = (req, res, next) => {
     .then((user) => res.status(200).send({ _id: user._id, email: user.email }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Invalid id'));
+        return next(new BadRequestError('Invalid id'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -106,10 +112,9 @@ const updateUserProfile = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Incorrect data was transmitted'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Incorrect data was transmitted'));
       }
+      return next(err);
     });
 };
 
@@ -129,10 +134,9 @@ const updateUserAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Incorrect data was transmitted'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Incorrect data was transmitted'));
       }
+      return next(err);
     });
 };
 

@@ -1,4 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
+const { urlRegExp, passwordRegExp } = require('../utils/constants');
 
 // const authValidate = celebrate({
 //   headers: Joi.object().keys({
@@ -9,7 +10,7 @@ const { celebrate, Joi } = require('celebrate');
 const loginValidate = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/).required(),
+    password: Joi.string().min(8).regex(passwordRegExp).required(),
   }),
 });
 
@@ -17,9 +18,9 @@ const registerValidate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
-    avatar: Joi.string().regex(/^https?:\/\/(www\.)?[-a-zA-Z0-9.]{2,255}\.[a-z]{2,11}([-a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]+)#?$/).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+    avatar: Joi.string().regex(urlRegExp).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     email: Joi.string().email().required(),
-    password: Joi.string().min(8).required(),
+    password: Joi.string().min(8).regex(passwordRegExp).required(),
   }),
 });
 
@@ -38,14 +39,14 @@ const updateUserProfileValidate = celebrate({
 
 const updateUserAvatarValidate = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().regex(/^https?:\/\/(www\.)?[-a-zA-Z0-9.]{2,255}\.[a-z]{2,11}([-a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]+)#?$/).required(),
+    avatar: Joi.string().regex(urlRegExp).required(),
   }),
 });
 
 const createCardValidate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().regex(/^https?:\/\/(www\.)?[-a-zA-Z0-9.]{2,255}\.[a-z]{2,11}([-a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]+)#?$/).required(),
+    link: Joi.string().regex(urlRegExp).required(),
   }),
 });
 
