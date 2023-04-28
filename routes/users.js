@@ -10,11 +10,10 @@ const {
   updateUserProfileValidate,
   updateUserAvatarValidate,
   idValidate,
-  authValidate,
 } = require('../middlewares/preValidate');
 
 router.patch('/me', updateUserProfileValidate, updateUserProfile);
-router.get('/me', authValidate, getUserInfo);
+router.get('/me', getUserInfo);
 router.patch('/me/avatar', updateUserAvatarValidate, updateUserAvatar);
 router.get('/', getUsers);
 router.get('/:id', idValidate, getUserById);

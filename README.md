@@ -9,6 +9,8 @@
 * Mongoose
 * MongoDB Compass
 * Postman (для отладки и тестирования)
+* Joi, celebrate, validator - валидация входящих данных
+* Централизованная обработка ошибок
 
 
 ## Директории

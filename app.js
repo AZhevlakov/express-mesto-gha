@@ -2,7 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -21,7 +21,7 @@ const limiter = rateLimit(
 
 app.use(helmet());
 app.use(limiter);
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(express.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
