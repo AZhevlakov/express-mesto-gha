@@ -14,12 +14,6 @@ const login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res.send({ token });
-      // res.cookie('token', { token }, {
-      //   maxAge: 3600000 * 24 * 7,
-      //   httpOnly: true,
-      //   sameSite: true,
-      // })
-      //   .end();
     })
     .catch(next);
 };
@@ -86,7 +80,7 @@ const getUserInfo = (req, res, next) => {
     .orFail(() => {
       throw new NotFoundError('User not found');
     })
-    .then((user) => res.send({ _id: user._id, email: user.email }))
+    .then((user) => res.status(200).send({ _id: user._id, email: user.email }))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Invalid id'));
