@@ -9,10 +9,8 @@ const { NotFoundError } = require('../errors');
 router.post('/signin', loginValidate, login);
 router.post('/signup', registerValidate, register);
 
-router.use(auth);
-
-router.use('/users', userRouter);
-router.use('/cards', cardRouter);
+router.use('/users', auth, userRouter);
+router.use('/cards', auth, cardRouter);
 router.use('/', (req, res, next) => next(new NotFoundError('Page not found')));
 
 module.exports = router;

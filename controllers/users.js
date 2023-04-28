@@ -86,7 +86,13 @@ const getUserInfo = (req, res, next) => {
     .orFail(() => {
       throw new NotFoundError('User not found');
     })
-    .then((user) => res.status(200).send({ _id: user._id, email: user.email }))
+    .then((user) => res.status(200).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      _id: user.id,
+    }))
     .catch((err) => {
       if (err.name === 'NotFound') {
         return next(err);
