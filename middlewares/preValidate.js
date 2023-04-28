@@ -1,10 +1,10 @@
 const { celebrate, Joi } = require('celebrate');
 
-const authValidate = celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().regex(/^[-$/.a-zA-Z0-9]+$/).required(),
-  }).unknown(true),
-});
+// const authValidate = celebrate({
+//   headers: Joi.object().keys({
+//     authorization: Joi.string().regex(/^[-$/.a-zA-Z0-9]+$/).required(),
+//   }).unknown(true),
+// });
 
 const loginValidate = celebrate({
   body: Joi.object().keys({
@@ -50,7 +50,7 @@ const createCardValidate = celebrate({
 });
 
 module.exports = {
-  authValidate,
+  // authValidate,
   loginValidate,
   registerValidate,
   idValidate,
